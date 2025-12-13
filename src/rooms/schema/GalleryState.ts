@@ -5,6 +5,8 @@ export class Player extends Schema {
     @type("number") y: number = 0;
     @type("number") z: number = 0;
     @type("number") rotation: number = 0;
+    @type("string") name: string = "Guest";
+    @type("string") galleryId: string = "";
 }
 
 export class GalleryState extends Schema {

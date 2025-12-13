@@ -2,17 +2,15 @@ import { Room, Client } from "@colyseus/core";
 import { GalleryState, Player } from "./schema/GalleryState";
 
 export class GalleryRoom extends Room<GalleryState> {
-    maxClients = 16; // Support reasonable lobby size
+    maxClients = 50;
 
     onCreate(options: any) {
-        // "create room with that id" -> Explicitly set roomId to the galleryId if provided
+        this.setState(new GalleryState());
+
         if (options.galleryId) {
             this.roomId = options.galleryId;
         }
 
-        this.setState(new GalleryState());
-
-        // Handle movement updates from client
         this.onMessage("move", (client, data) => {
             const player = this.state.players.get(client.sessionId);
             if (player) {
@@ -22,19 +20,43 @@ export class GalleryRoom extends Room<GalleryState> {
                 player.rotation = data.rotation;
             }
         });
+
+        this.onMessage("chat", (client, message) => {
+            // Broadcast chat message to all clients in the room
+            // synchronizing by sending it back to everyone
+            const player = this.state.players.get(client.sessionId);
+            const name = player?.name || "Guest";
+
+            this.broadcast("chat", {
+                senderId: client.sessionId,
+                senderName: name,
+                message: message,
+                timestamp: Date.now()
+            });
+        });
     }
 
     onJoin(client: Client, options: any) {
         console.log(client.sessionId, "joined!");
-
-        // Create player instance for this client
         const player = new Player();
 
-        // If options provided, set initial position (optional)
-        if (options.x) player.x = options.x;
-        if (options.y) player.y = options.y;
-        if (options.z) player.z = options.z;
-        if (options.rotation) player.rotation = options.rotation;
+        // Initial position
+        player.x = 0;
+        player.y = 0;
+        player.z = 0;
+        player.rotation = 0;
+
+        // Assign galleryId if provided
+        if (options.galleryId) {
+            player.galleryId = options.galleryId;
+        }
+
+        // Assign name if provided
+        if (options.name) {
+            player.name = options.name;
+        } else {
+            player.name = "Guest " + client.sessionId.slice(0, 4);
+        }
 
         this.state.players.set(client.sessionId, player);
     }
