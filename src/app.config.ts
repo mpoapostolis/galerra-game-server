@@ -1,11 +1,10 @@
 import config from "@colyseus/tools";
 import { monitor } from "@colyseus/monitor";
-import { playground } from "@colyseus/playground";
 
 /**
  * Import your Room files
  */
-import { MyRoom } from "./rooms/MyRoom";
+import { GalleryRoom } from "./rooms/GalleryRoom";
 
 export default config({
 
@@ -13,7 +12,9 @@ export default config({
         /**
          * Define your room handlers:
          */
-        gameServer.define('my_room', MyRoom);
+        // Register the gallery room
+        // Enable per-gallery rooms by filtering by galleryId
+        gameServer.define('gallery', GalleryRoom).filterBy(['galleryId']);
 
     },
 
@@ -26,13 +27,7 @@ export default config({
             res.send("It's time to kick ass and chew bubblegum!");
         });
 
-        /**
-         * Use @colyseus/playground
-         * (It is not recommended to expose this route in a production environment)
-         */
-        if (process.env.NODE_ENV !== "production") {
-            app.use("/", playground());
-        }
+        // Playground removed as requested
 
         /**
          * Use @colyseus/monitor
