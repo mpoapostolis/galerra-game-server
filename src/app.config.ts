@@ -9,6 +9,7 @@ import { GalleryRoom } from "./rooms/GalleryRoom";
 export default config({
 
     initializeGameServer: (gameServer) => {
+        console.log("--- SERVER UPDATE VERIFIED: FILTERING ENABLED (v2) ---");
         /**
          * Define your room handlers:
          */
