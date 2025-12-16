@@ -1,6 +1,5 @@
 import config from "@colyseus/tools";
 import { monitor } from "@colyseus/monitor";
-import { playground } from "@colyseus/playground";
 import { GalleryRoom } from "./rooms/GalleryRoom";
 
 export default config({
@@ -14,7 +13,7 @@ export default config({
 
     },
 
-    initializeExpress: (app) => {
+    initializeExpress: async (app) => {
         /**
          * Bind your custom express routes here:
          * Read more: https://docs.colyseus.io/tools/monitor/#express
@@ -33,6 +32,7 @@ export default config({
          * (It is not recommended to expose this publicly in a production environment)
          */
         if (process.env.NODE_ENV !== "production") {
+            const { playground } = await import("@colyseus/playground");
             app.use("/", playground);
         }
 
