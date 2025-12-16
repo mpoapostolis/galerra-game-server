@@ -41,7 +41,32 @@ export default config({
          * It is recommended to protect this route with a password
          * Read more: https://docs.colyseus.io/tools/monitor/#express
          */
-        app.use("/colyseus", monitor());
+        const basicAuth = (req: any, res: any, next: any) => {
+            const auth = req.headers.authorization;
+
+            if (!auth) {
+                res.setHeader('WWW-Authenticate', 'Basic realm="Colyseus Monitor"');
+                return res.status(401).send('Authentication required');
+            }
+
+            const [scheme, credentials] = auth.split(' ');
+            if (scheme !== 'Basic') {
+                return res.status(401).send('Invalid authentication scheme');
+            }
+
+            const [username, password] = Buffer.from(credentials, 'base64').toString().split(':');
+            const validUsername = process.env.MONITOR_USERNAME || 'admin';
+            const validPassword = process.env.MONITOR_PASSWORD || 'changeme123';
+
+            if (username === validUsername && password === validPassword) {
+                return next();
+            }
+
+            res.setHeader('WWW-Authenticate', 'Basic realm="Colyseus Monitor"');
+            return res.status(401).send('Invalid credentials');
+        };
+
+        app.use("/colyseus", basicAuth, monitor());
     },
 
 
