@@ -2,18 +2,14 @@ module.exports = {
   apps: [{
     name: 'galerra-server',
     script: 'build/index.js',
-    instances: 1,
-    exec_mode: 'cluster',
+    instances: 1, // MUST be 1 — Colyseus keeps room state in memory
+    exec_mode: 'fork',
+    max_memory_restart: '512M',
     env: {
       NODE_ENV: 'production',
       PORT: 2567,
       MONITOR_USERNAME: 'admin',
-      MONITOR_PASSWORD: 'YOUR_SECURE_PASSWORD_HERE'
+      MONITOR_PASSWORD: process.env.MONITOR_PASSWORD,
     },
-    env_production: {
-      NODE_ENV: 'production',
-      MONITOR_USERNAME: 'admin',
-      MONITOR_PASSWORD: 'YOUR_SECURE_PASSWORD_HERE'
-    }
   }]
 };
